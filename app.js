@@ -11,10 +11,10 @@ const PORT = 3000;
 app.use(express.json());
 
 let scheduled = [
-  { id: 1, kegiatan: "TournamentBH", tanggal: "24 Desember 2026", status : 'Belum' },
-  { id: 2, kegiatan: "HBDKaela", tanggal: "30 Augustus 2026", status : 'selesai' },
-  { id: 3, kegiatan: "HUT-RI", tanggal: "17 Augustus 2026", status : 'selesai' },
-  { id: 4, kegiatan: "Easter", tanggal: "05 April 2026", status : 'selesai' },
+  { id: 1, kegiatan: "TournamentBH", tanggal: "24 Desember 2026", waktu: '19.00', status : 'Belum' },
+  { id: 2, kegiatan: "HBDKaela", tanggal: "30 Augustus 2026", waktu: '10.00', status : 'selesai' },
+  { id: 3, kegiatan: "HUT-RI", tanggal: "17 Augustus 2026", waktu: '09.00', status : 'selesai' },
+  { id: 4, kegiatan: "Easter", tanggal: "05 April 2026", waktu: '13.00', status : 'selesai' },
 ];
 
 // TODO 1: GET /scheduled -> kirim seluruh data sebagai JSON
