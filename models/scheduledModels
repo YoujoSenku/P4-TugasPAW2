@@ -1,0 +1,54 @@
+let scheduled = [
+    { id: 1, kegiatan: "TournamentBH", tanggal: "24 Desember 2026", waktu: '19.00', status: 'Belum' },
+    { id: 2, kegiatan: "HBDKaela", tanggal: "30 Augustus 2026", waktu: '10.00', status: 'selesai' },
+    { id: 3, kegiatan: "HUT-RI", tanggal: "17 Augustus 2026", waktu: '09.00', status: 'selesai' },
+    { id: 4, kegiatan: "Easter", tanggal: "05 April 2026", waktu: '13.00', status: 'selesai' },
+];
+
+function getAllScheduled() {
+    return scheduled;
+}
+
+function getScheduledById(id) {
+    return scheduled.find((m) => m.id === id);
+}
+
+function createScheduled(data) {
+    const newScheduled = {
+        id: scheduled.length + 1,
+        kegiatan: data.kegiatan,
+        tanggal: data.tanggal,
+        waktu: data.waktu,
+        status: data.status,
+    };
+    scheduled.push(newScheduled);
+    return newScheduled;
+}
+
+function updateScheduled(id, updatedData) {
+    const index = scheduled.findIndex((m) => m.id === id);
+    if (index === -1) return null;
+
+    scheduled[index] = { ...scheduled[index],
+        kegiatan: updatedData.kegiatan || scheduled[index].kegiatan,
+        tanggal: updatedData.tanggal || scheduled[index].tanggal,
+        waktu: updatedData.waktu || scheduled[index].waktu,
+        status: updatedData.status || scheduled[index].status,
+     };
+    return scheduled[index];
+}
+
+function deleteScheduled(id) {
+    const index = scheduled.findIndex((m) => m.id === id);
+    if (index === -1) return null;
+    const deletedScheduled = scheduled.splice(index, 1);
+    return deletedScheduled[0];
+}
+
+module.exports = {
+    getAllScheduled,
+    getScheduledById,
+    createScheduled,
+    updateScheduled,
+    deleteScheduled,
+};
