@@ -1,0 +1,219 @@
+{
+    "info": {
+        "_postman_id": "a8f1b2c3-d4e5-4f6a-8b9c-0123456789ab",
+        "name": "PAWII - Scheduled API",
+        "description": "Mini Project: Collection Postman untuk testing RESTful API Scheduled (kegiatan, tanggal, waktu, status).",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "GET All Scheduled",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "// Test 1: Memeriksa HTTP Status Code 200",
+                            "pm.test('Status code adalah 200', function () {",
+                            "  pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "// Test 2: Memastikan response berupa Array",
+                            "pm.test('Response berupa array', function () {",
+                            "  const jsonData = pm.response.json();",
+                            "  pm.expect(jsonData).to.be.an('array');",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{base_url}}/scheduled",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "scheduled"
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "POST Tambah Scheduled",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "// Test 1: Memeriksa HTTP Status Code 201 (Created)",
+                            "pm.test('Status code adalah 201', function () {",
+                            "  pm.response.to.have.status(201);",
+                            "});",
+                            "",
+                            "// Test 2: Simpan ID data baru ke environment variable 'scheduledId'",
+                            "const jsonData = pm.response.json();",
+                            "pm.environment.set('scheduledId', jsonData.id);"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"kegiatan\": \"Workshop Node.js\",\n  \"tanggal\": \"15 November 2026\",\n  \"waktu\": \"14.00\",\n  \"status\": \"Belum\"\n}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/scheduled",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "scheduled"
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "GET Satu Scheduled",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "// Test 1: Memeriksa HTTP Status Code 200",
+                            "pm.test('Status code adalah 200', function () {",
+                            "  pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "// Test 2: Memastikan data memiliki properti 'kegiatan'",
+                            "pm.test('Data memiliki properti kegiatan', function () {",
+                            "  const jsonData = pm.response.json();",
+                            "  pm.expect(jsonData).to.have.property('kegiatan');",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{base_url}}/scheduled/{{scheduledId}}",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "scheduled",
+                        "{{scheduledId}}"
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "PUT Update Scheduled",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "// Test 1: Memeriksa HTTP Status Code 200",
+                            "pm.test('Status code adalah 200', function () {",
+                            "  pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "// Test 2: Memastikan status berhasil diperbarui",
+                            "pm.test('Status kegiatan berhasil diperbarui', function () {",
+                            "  const jsonData = pm.response.json();",
+                            "  pm.expect(jsonData.status).to.eql('selesai');",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "PUT",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"status\": \"selesai\"\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "{{base_url}}/scheduled/{{scheduledId}}",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "scheduled",
+                        "{{scheduledId}}"
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "DELETE Scheduled",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "// Test 1: Memeriksa HTTP Status Code 200",
+                            "pm.test('Status code adalah 200', function () {",
+                            "  pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "// Test 2: Memastikan pesan konfirmasi hapus sesuai",
+                            "pm.test('Pesan konfirmasi hapus sesuai', function () {",
+                            "  const jsonData = pm.response.json();",
+                            "  pm.expect(jsonData.message).to.eql('Data berhasil dihapus');",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                    "raw": "{{base_url}}/scheduled/{{scheduledId}}",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "scheduled",
+                        "{{scheduledId}}"
+                    ]
+                }
+            },
+            "response": []
+        }
+    ]
+}
