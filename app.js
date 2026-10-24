@@ -3,14 +3,23 @@
 //
 // TODO scheduled: lengkapi setiap handler di bawah ini sesuai komentar.
 // Jalankan dengan: npm install && npm start
+require('dotenv').config(); // Load variabel lingkungan dari .env
+const dns = require('dns');
+dns.setServers(['8.8.8.8', '1.1.1.1']); // Memaksa Node.js memakai Google & Cloudflare DNS
 
 const express = require("express");
+const mongoose = require("mongoose");
 const scheduledRoutes = require('./routes/scheduledRoutes');
 const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
-
 app.use(express.json());
+
+const MONGO_URI = process.env.MONGODB_URI;
+
+mongoose.connect(MONGO_URI)
+    .then(() => console.log('Database MongoDB Atlas Terhubung!'))
+    .catch((err) => console.error('Koneksi MongoDB Atlas Gagal:', err));
 
 // Gunakan router untuk semua endpoint yang berhubungan dengan scheduled
 app.use('/scheduled', scheduledRoutes);

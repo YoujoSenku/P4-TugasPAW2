@@ -1,56 +1,41 @@
-const scheduledModel = require('../models/scheduledModel');
+const Scheduled = require('../models/scheduledModel');
 
-exports.getAllScheduled = (req, res, next) => {
+exports.getAllScheduled = async (req, res, next) => {
     try {
-        let scheduled = [...scheduledModel.getAllScheduled()];
-
-        // Filter by status if query parameter is provided
+        // Mongoose query with filtering, pagination, sorting, and projection
+        // --- A. FILTERING ---
+        const filter = {};
         if (req.query.status) {
-            scheduled = scheduled.filter(item => 
-                item.status.toLowerCase() === req.query.status.toLowerCase()
-            );
+            // Pencocokan status case-insensitive menggunakan RegExp
+            filter.status = new RegExp(`^${req.query.status}$`, 'i');
         }
 
-        // Sorting
-        if (req.query.sort) {
-            const isDescending = req.query.sort.startsWith('-');
-            const field = isDescending ? req.query.sort.substring(1) : req.query.sort;
-
-            scheduled.sort((a, b) => {
-                if (a[field] < b[field]) return isDescending ? 1 : -1;
-                if (a[field] > b[field]) return isDescending ? -1 : 1;
-                return 0;
-            });
-        }
-
-        // Pagination
-        const page = parseInt(req.query.page, 10) || 1;
+        // --- B. PAGINATION ---
+        const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
         let limit = parseInt(req.query.limit, 10) || 5;
-
         const MAX_LIMIT = 10;
-        if (limit > MAX_LIMIT) {
-            limit = MAX_LIMIT;
+        if (limit > MAX_LIMIT) limit = MAX_LIMIT;
+
+        // --- C. SORTING ---
+        // Jika req.query.sort = '-tanggal', Mongoose otomatis mengurutkan Descending
+        let sortBy = '-createdAt'; // Default sort
+        if (req.query.sort) {
+            sortBy = req.query.sort.split(',').join(' ');
         }
 
-        const totalData = scheduled.length;
-        const startIndex = (page - 1) * limit;
-        const endIndex = startIndex + limit;
-        let paginatedData = scheduled.slice(startIndex, endIndex);
+        // --- D. PROJECTION ---
+        // Format di Mongoose berupa string dipisah spasi, misal: "kegiatan tanggal"
+        const fields = req.query.fields ? req.query.fields.split(',').join(' ') : '';
 
-        // Field selection (Projection)
-        if (req.query.fields) {
-            const fieldList = req.query.fields.split(',').map(f => f.trim());
-            
-            paginatedData = paginatedData.map(item => {
-                const filteredItem = {};
-                fieldList.forEach(field => {
-                    if (item[field] !== undefined) {
-                        filteredItem[field] = item[field];
-                    }
-                });
-                return filteredItem;
-            });
-        }
+        // --- EKSEKUSI QUERY MONGOOSE ---
+        const paginatedData = await Scheduled.find(filter)
+            .sort(sortBy)
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .select(fields);
+
+        // Hitung total data yang cocok dengan filter untuk metadata pagination
+        const totalData = await Scheduled.countDocuments(filter);
 
         res.status(200).json({
             status: 'success',
@@ -63,15 +48,81 @@ exports.getAllScheduled = (req, res, next) => {
             },
             data: paginatedData
         });
+
+        // --- ALTERNATIF TANPA MONGOOSE (Hanya untuk array lokal) ---
+        // let scheduled = [...scheduledModel.getAllScheduled()];
+
+        // // Filter by status if query parameter is provided
+        // if (req.query.status) {
+        //     scheduled = scheduled.filter(item => 
+        //         item.status.toLowerCase() === req.query.status.toLowerCase()
+        //     );
+        // }
+
+        // // Sorting
+        // if (req.query.sort) {
+        //     const isDescending = req.query.sort.startsWith('-');
+        //     const field = isDescending ? req.query.sort.substring(1) : req.query.sort;
+
+        //     scheduled.sort((a, b) => {
+        //         if (a[field] < b[field]) return isDescending ? 1 : -1;
+        //         if (a[field] > b[field]) return isDescending ? -1 : 1;
+        //         return 0;
+        //     });
+        // }
+
+        // // Pagination
+        // const page = parseInt(req.query.page, 10) || 1;
+        // let limit = parseInt(req.query.limit, 10) || 5;
+
+        // const MAX_LIMIT = 10;
+        // if (limit > MAX_LIMIT) {
+        //     limit = MAX_LIMIT;
+        // }
+
+        // const totalData = scheduled.length;
+        // const startIndex = (page - 1) * limit;
+        // const endIndex = startIndex + limit;
+        // let paginatedData = scheduled.slice(startIndex, endIndex);
+
+        // // Field selection (Projection)
+        // if (req.query.fields) {
+        //     const fieldList = req.query.fields.split(',').map(f => f.trim());
+            
+        //     paginatedData = paginatedData.map(item => {
+        //         const filteredItem = {};
+        //         fieldList.forEach(field => {
+        //             if (item[field] !== undefined) {
+        //                 filteredItem[field] = item[field];
+        //             }
+        //         });
+        //         return filteredItem;
+        //     });
+        // }
+
+        // res.status(200).json({
+        //     status: 'success',
+        //     results: paginatedData.length,
+        //     pagination: {
+        //         totalData,
+        //         currentPage: page,
+        //         totalPages: Math.ceil(totalData / limit),
+        //         limit
+        //     },
+        //     data: paginatedData
+        // });
     } catch (error) {
         next(error); // Pass the error to the error handling middleware
     }
 };
 
-exports.getScheduledById = (req, res, next) => {
+exports.getScheduledById = async (req, res, next) => {
     try {
-        const id = parseInt(req.params.id, 10);
-        const data = scheduledModel.getScheduledById(id);
+        const data = await Scheduled.findById(req.params.id); // Mongoose query to find by ID
+
+        // --- ALTERNATIF TANPA MONGOOSE (Hanya untuk array lokal) ---
+        // const id = parseInt(req.params.id, 10);
+        // const data = scheduledModel.getScheduledById(id);
 
         // If data is not found, create an error and pass it to the next middleware
         if (!data) {
@@ -90,7 +141,7 @@ exports.getScheduledById = (req, res, next) => {
     }
 };
 
-exports.createScheduled = (req, res, next) => {
+exports.createScheduled = async (req, res, next) => {
     try {
         const { kegiatan, tanggal, waktu, status } = req.body;
 
@@ -101,12 +152,21 @@ exports.createScheduled = (req, res, next) => {
             return next(err);     // Lempar error ke middleware berikutnya (errorHandler)
         }
 
-        const newScheduled = scheduledModel.createScheduled({
+        // Buat data baru menggunakan Mongoose
+        const newScheduled = await Scheduled.create({
             kegiatan,
             tanggal,
             waktu,
             status
         });
+
+        // --- ALTERNATIF TANPA MONGOOSE (Hanya untuk array lokal) ---
+        // const newScheduled = scheduledModel.createScheduled({
+        //     kegiatan,
+        //     tanggal,
+        //     waktu,
+        //     status
+        // });
 
         res.status(201).json({
             status: 'success',
@@ -117,11 +177,19 @@ exports.createScheduled = (req, res, next) => {
     }
 };
 
-exports.updateScheduled = (req, res, next) => {
+exports.updateScheduled = async (req, res, next) => {
     try {
-        const id = parseInt(req.params.id, 10);
-        const updatedData = req.body;
-        const updatedScheduled = scheduledModel.updateScheduled(id, updatedData);
+        // Update data menggunakan Mongoose
+        const updatedScheduled = await Scheduled.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true, runValidators: true } // Return data baru & jalankan validasi schema
+        );
+
+        // --- ALTERNATIF TANPA MONGOOSE (Hanya untuk array lokal) ---
+        // const id = parseInt(req.params.id, 10);
+        // const updatedData = req.body;
+        // const updatedScheduled = scheduledModel.updateScheduled(id, updatedData);
 
         if (!updatedScheduled) {
             const err = new Error('Data tidak ditemukan');
@@ -138,10 +206,14 @@ exports.updateScheduled = (req, res, next) => {
     }
 };
 
-exports.deleteScheduled = (req, res, next) => {
+exports.deleteScheduled = async(req, res, next) => {
     try {
-        const id = parseInt(req.params.id, 10);
-        const deletedScheduled = scheduledModel.deleteScheduled(id);
+        // Delete data menggunakan Mongoose
+        const deletedScheduled = await Scheduled.findByIdAndDelete(req.params.id);
+
+        // --- ALTERNATIF TANPA MONGOOSE (Hanya untuk array lokal) ---
+        // const id = parseInt(req.params.id, 10);
+        // const deletedScheduled = scheduledModel.deleteScheduled(id);
 
         if (!deletedScheduled) {
             const err = new Error('Data tidak ditemukan');
