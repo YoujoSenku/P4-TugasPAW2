@@ -1,0 +1,70 @@
+let scheduled = [
+    { id: 1, kegiatan: "TournamentBH", tanggal: "2026-12-24", waktu: "19.00", status: "belum" },
+    { id: 2, kegiatan: "HBDKaela", tanggal: "2026-08-30", waktu: "10.00", status: "selesai" },
+    { id: 3, kegiatan: "HUT-RI", tanggal: "2026-08-17", waktu: "09.00", status: "selesai" },
+    { id: 4, kegiatan: "Easter", tanggal: "2026-04-05", waktu: "13.00", status: "selesai" },
+    { id: 5, kegiatan: "WebinarAI", tanggal: "2026-05-10", waktu: "11.00", status: "selesai" },
+    { id: 6, kegiatan: "RapatPAW", tanggal: "2026-09-10", waktu: "14.00", status: "selesai" },
+    { id: 7, kegiatan: "UjianWeb", tanggal: "2026-10-15", waktu: "08.00", status: "belum" },
+    { id: 8, kegiatan: "WorkshopAPI", tanggal: "2026-11-01", waktu: "10.00", status: "belum" },
+    { id: 9, kegiatan: "GatheringDev", tanggal: "2026-11-12", waktu: "15.30", status: "belum" },
+    { id: 10, kegiatan: "Hackathon", tanggal: "2026-11-20", waktu: "09.00", status: "belum" },
+    { id: 11, kegiatan: "Natal", tanggal: "2026-12-25", waktu: "07.00", status: "belum" },
+    { id: 12, kegiatan: "TahunBaru", tanggal: "2026-12-31", waktu: "23.59", status: "belum" },
+    { id: 13, kegiatan: "EvaluasiProject", tanggal: "2026-01-15", waktu: "09.00", status: "selesai" },
+    { id: 14, kegiatan: "KuisBasisData", tanggal: "2026-02-20", waktu: "13.00", status: "selesai" },
+    { id: 15, kegiatan: "PraktikumSistem", tanggal: "2026-03-10", waktu: "10.00", status: "selesai" },
+    { id: 16, kegiatan: "BimbinganTA", tanggal: "2026-06-18", waktu: "11.00", status: "selesai" },
+    { id: 17, kegiatan: "SubmitTugas1", tanggal: "2026-07-01", waktu: "23.59", status: "selesai" },
+    { id: 18, kegiatan: "PresentasiPAW", tanggal: "2026-10-05", waktu: "08.30", status: "selesai" },
+    { id: 19, kegiatan: "ReviewCode", tanggal: "2026-11-05", waktu: "16.00", status: "belum" },
+    { id: 20, kegiatan: "SertifikasiCloud", tanggal: "2026-12-10", waktu: "13.30", status: "belum" }
+];
+
+function getAllScheduled() {
+    return scheduled;
+}
+
+function getScheduledById(id) {
+    return scheduled.find((m) => m.id === id);
+}
+
+function createScheduled(data) {
+    const newScheduled = {
+        id: scheduled.length + 1,
+        kegiatan: data.kegiatan,
+        tanggal: data.tanggal,
+        waktu: data.waktu,
+        status: data.status,
+    };
+    scheduled.push(newScheduled);
+    return newScheduled;
+}
+
+function updateScheduled(id, updatedData) {
+    const index = scheduled.findIndex((m) => m.id === id);
+    if (index === -1) return null;
+
+    scheduled[index] = { ...scheduled[index],
+        kegiatan: updatedData.kegiatan || scheduled[index].kegiatan,
+        tanggal: updatedData.tanggal || scheduled[index].tanggal,
+        waktu: updatedData.waktu || scheduled[index].waktu,
+        status: updatedData.status || scheduled[index].status,
+     };
+    return scheduled[index];
+}
+
+function deleteScheduled(id) {
+    const index = scheduled.findIndex((m) => m.id === id);
+    if (index === -1) return null;
+    const deletedScheduled = scheduled.splice(index, 1);
+    return deletedScheduled[0];
+}
+
+module.exports = {
+    getAllScheduled,
+    getScheduledById,
+    createScheduled,
+    updateScheduled,
+    deleteScheduled,
+};

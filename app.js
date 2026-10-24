@@ -5,13 +5,25 @@
 // Jalankan dengan: npm install && npm start
 
 const express = require("express");
+const scheduledRoutes = require('./routes/scheduledRoutes');
+const errorHandler = require("./middleware/errorHandler");
+
 const app = express();
 
 app.use(express.json());
 
-const scheduledRoutes = require('./routes/scheduledRoutes');
-
+// Gunakan router untuk semua endpoint yang berhubungan dengan scheduled
 app.use('/scheduled', scheduledRoutes);
+
+// Middleware untuk menangani error
+app.use((req, res, next) => {
+    const err = new Error(`Endpoint ${req.originalUrl} tidak ditemukan!`);
+    err.statusCode = 404;
+    next(err); // Lempar ke errorHandler
+});
+
+// Error handling middleware
+app.use(errorHandler);
 
 // app.use(express.json());
 

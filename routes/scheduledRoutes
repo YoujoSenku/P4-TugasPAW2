@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const scheduledController = require('../controllers/scheduledControllers');
+const scheduledController = require('../controllers/scheduledController');
 
 router.get('/', scheduledController.getAllScheduled);
 router.get('/:id', scheduledController.getScheduledById);
